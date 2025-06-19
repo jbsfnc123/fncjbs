@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const SUPER_ADMIN_PASS = '060814';
 
     // Default PIN aplikasi
-    let currentPin = localStorage.getItem('appPin') || '0608'; // Default PIN jika belum ada
+    let currentPin = localStorage.getItem('appPin') || '1234'; // Default PIN jika belum ada
 
     // Default info donasi
     let donationInfo = JSON.parse(localStorage.getItem('donationInfo')) || {
