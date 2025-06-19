@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Pengingat Tagihan FORTRESS™ (Client-Side)</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Tailwind CSS CDN untuk styling modern dan responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* Konfigurasi Tailwind untuk warna kustom dan font, bisa dipindahkan ke tailwind.config.js jika menggunakan CLI */
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #4CAF50; /* Green for success/lunas */
+            --warning-color: #FFC107; /* Amber for due soon */
+            --danger-color: #F44336; /* Red for overdue */
+            --text-color-dark: #333;
+            --text-color-light: #fff;
+            --bg-light: #f4f7f9;
+            --bg-dark: #2c2c2c;
+            --card-bg-light: #fff;
+            --card-bg-dark: #3a3a3a;
+            --border-color-light: #e0e0e0;
+            --border-color-dark: #555;
+        }
+
+        /* Mode gelap */
+        body.dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-color-light);
+        }
+
+        body.dark-mode .container {
+            background-color: var(--card-bg-dark);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        body.dark-mode header,
+        body.dark-mode .modal-header,
+        body.dark-mode table thead th {
+            border-color: var(--border-color-dark);
+            color: var(--text-color-light);
+        }
+
+        body.dark-mode h1,
+        body.dark-mode .modal-header h2 {
+            color: #61afef; /* A lighter blue for dark mode headings */
+        }
+
+        body.dark-mode #upload-container {
+            border-color: #61afef;
+            background-color: #4a4a4a; /* Darker background for upload area */
+        }
+        body.dark-mode #upload-container p,
+        body.dark-mode #upload-container input[type="file"] {
+            color: var(--text-color-light);
+        }
+
+
+        body.dark-mode .filters select,
+        body.dark-mode .filters input,
+        body.dark-mode .modal-content {
+            background-color: var(--card-bg-dark);
+            color: var(--text-color-light);
+            border-color: var(--border-color-dark);
+        }
+
+        body.dark-mode table,
+        body.dark-mode th,
+        body.dark-mode td {
+            border-color: var(--border-color-dark);
+            color: var(--text-color-light);
+        }
+
+        body.dark-mode tbody tr:hover {
+            background-color: #4a4a4a;
+        }
+
+        body.dark-mode .modal-close,
+        body.dark-mode .modal-close-confirm,
+        body.dark-mode .modal-close-alert,
+        body.dark-mode .detail-modal-close,
+        body.dark-mode .template-modal-close,
+        body.dark-mode .modal-close-pin,
+        body.dark-mode .modal-close-admin,
+        body.dark-mode .modal-close-change-pin {
+            color: #aaa;
+        }
+
+        body.dark-mode .invoice-details .tagihan-info {
+            color: #ff7878; /* Lighter red for dark mode */
+        }
+
+        body.dark-mode .btn-secondary {
+            background: linear-gradient(45deg, #6c757d, #495057); /* Gradien Sekunder */
+            color: white;
+        }
+        body.dark-mode .btn-secondary:hover {
+            background: linear-gradient(45deg, #495057, #6c757d);
+        }
+        body.dark-mode .btn-edit {
+            background-color: #4CAF50; /* Green for edit */
+            color: white;
+        }
+        body.dark-mode .btn-edit:hover {
+            background-color: #45a049;
+        }
+        body.dark-mode .btn-template {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+            color: white;
+        }
+        body.dark-mode .btn-template:hover {
+            background: linear-gradient(45deg, #f57c00, #ff9800);
+        }
+        body.dark-mode .edit-template-btn {
+            background-color: #61afef;
+        }
+        body.dark-mode .edit-template-btn:hover {
+            background-color: #4a8edb;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-poppins">
+    <!-- Kontainer Import File Mini -->
+    <div id="mini-import-container" class="fixed top-0 left-0 z-50 p-2 md:p-4 bg-white shadow-lg rounded-br-lg transition-all duration-300 hover:w-64 md:hover:w-80 overflow-hidden group">
+        <div class="flex items-center mb-2">
+            <i class="fas fa-file-upload text-blue-600 text-xl mr-2"></i>
+            <span class="font-semibold text-gray-700 hidden group-hover:inline-block">Import Data</span>
+        </div>
+
+        <div class="mb-2">
+            <label class="block text-xs font-medium text-gray-600 hidden group-hover:block">Data Tagihan:</label>
+            <input type="file" id="file-input-master" accept=".xlsx, .xls" class="block w-full text-xs text-gray-500 file:px-2 file:py-1 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 hidden group-hover:block">
+            <button id="clear-data-master-btn" class="btn btn-secondary text-xs px-2 py-1 rounded-md mt-1 hidden group-hover:block w-full">
+                <i class="fas fa-trash-alt"></i> Hapus Tagihan
+            </button>
+            <div id="loading-indicator-master" class="hidden text-xs text-blue-600 mt-1">
+                <i class="fas fa-spinner fa-spin mr-1"></i>Loading...
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-xs font-medium text-gray-600 hidden group-hover:block">Detail Barang:</label>
+            <input type="file" id="file-input-detail" accept=".xlsx, .xls" class="block w-full text-xs text-gray-500 file:px-2 file:py-1 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 hidden group-hover:block">
+            <button id="clear-data-detail-btn" class="btn btn-secondary text-xs px-2 py-1 rounded-md mt-1 hidden group-hover:block w-full">
+                <i class="fas fa-trash-alt"></i> Hapus Detail
+            </button>
+            <div id="loading-indicator-detail" class="hidden text-xs text-green-600 mt-1">
+                <i class="fas fa-spinner fa-spin mr-1"></i>Loading...
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-5 md:p-8 bg-white rounded-lg shadow-xl my-8">
+        <header class="border-b pb-5 mb-5 flex flex-col md:flex-row justify-between items-center">
+            <h1 class="text-3xl font-semibold text-blue-600 mb-4 md:mb-0">Pengingat Tagihan FORTRESS™</h1>
+            <div class="flex items-center gap-4 header-actions">
+                <!-- Tombol Mode Gelap -->
+                <button id="dark-mode-toggle" class="p-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors">
+                    <i class="fas fa-moon text-gray-700 dark:text-gray-300"></i>
+                </button>
+                <!-- Tombol Manajemen Template -->
+                <button id="template-modal-btn" class="btn btn-template px-4 py-2 rounded-md font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors flex items-center gap-2">
+                    <i class="fas fa-file-alt"></i> Template Pesan
+                </button>
+                <!-- Tombol Pengaturan Admin -->
+                <button id="open-admin-settings-btn" class="btn btn-secondary px-4 py-2 rounded-md font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 transition-colors flex items-center gap-2">
+                    <i class="fas fa-user-shield"></i> Admin
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Kontainer unggah sebelumnya telah dipindahkan ke mini-import-container -->
+
+            <div class="filters flex flex-col md:flex-row gap-4 mb-6" id="filter-controls" style="display: none;">
+                <div class="relative flex-grow">
+                    <select id="filter-cabang" class="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <option value="semua">Semua Cabang</option>
+                    </select>
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="relative flex-grow">
+                    <input type="text" id="cari-pelanggan" placeholder="Cari Pelanggan..." class="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"><i class="fas fa-search"></i></span>
+                </div>
+                <div class="relative flex-grow">
+                    <select id="filter-kategori" class="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <option value="semua">Semua Kategori</option>
+                        <option value="Belum Jatuh Tempo">Belum Jatuh Tempo</option>
+                        <option value="Konfirmasi Terima Barang">Konfirmasi Terima Barang <span class="badge" id="badge-konfirmasi-terima-barang"></span></option>
+                        <option value="Akan Jatuh Tempo">Akan Jatuh Tempo <span class="badge" id="badge-akan-jatuh-tempo"></span></option>
+                        <option value="Jatuh Tempo">Jatuh Tempo <span class="badge" id="badge-jatuh-tempo"></span></option>
+                    </select>
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"><i class="fas fa-chevron-down"></i></span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-lg shadow-md">
+                <table id="tabel-tagihan" class="min-w-full bg-white">
+                    <thead>
+                        <tr>
+                            <th class="py-3 px-4 bg-blue-600 text-left text-white text-sm font-semibold uppercase tracking-wider rounded-tl-lg">No Invoice</th>
+                            <th class="py-3 px-4 bg-blue-600 text-left text-white text-sm font-semibold uppercase tracking-wider">Tanggal</th>
+                            <th class="py-3 px-4 bg-blue-600 text-left text-white text-sm font-semibold uppercase tracking-wider">Jatuh Tempo</th>
+                            <th class="py-3 px-4 bg-blue-600 text-left text-white text-sm font-semibold uppercase tracking-wider">Pelanggan</th>
+                            <th class="py-3 px-4 bg-blue-600 text-left text-white text-sm font-semibold uppercase tracking-wider">Sisa Tagihan</th>
+                            <th class="py-3 px-4 bg-blue-600 text-left text-white text-sm font-semibold uppercase tracking-wider rounded-tr-lg">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td colspan="6" class="py-4 px-4 text-center text-gray-500">Silakan pilih file Excel di atas.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Konfirmasi Kustom -->
+    <div id="custom-confirm-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="custom-confirm-title">Konfirmasi</h2>
+                <span class="modal-close-confirm text-gray-500 hover:text-gray-800 cursor-pointer text-3xl font-bold">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="custom-confirm-message" class="text-gray-700 mb-6"></p>
+            </div>
+            <div class="modal-footer flex justify-end gap-3">
+                <button id="custom-confirm-cancel" class="px-5 py-2 rounded-md bg-gray-300 text-gray-800 hover:bg-gray-400 font-semibold transition-colors">Batal</button>
+                <button id="custom-confirm-ok" class="px-5 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold transition-colors">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Notifikasi Kustom -->
+    <div id="custom-alert-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="custom-alert-title">Notifikasi</h2>
+                <span class="modal-close-alert text-gray-500 hover:text-gray-800 cursor-pointer text-3xl font-bold">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="custom-alert-message" class="text-gray-700 mb-6"></p>
+            </div>
+            <div class="modal-footer flex justify-end">
+                <button id="custom-alert-ok" class="px-5 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold transition-colors">OK</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal Lunas -->
+    <div id="lunas-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title" class="text-xl font-semibold text-blue-600">Pilih Invoice yang Lunas</h2>
+                <span class="modal-close text-gray-500 hover:text-gray-800 cursor-pointer text-3xl font-bold">&times;</span>
+            </div>
+            <div class="modal-body" id="modal-invoice-list">
+                <!-- Daftar invoice akan dimuat di sini -->
+            </div>
+            <div class="modal-footer flex justify-end">
+                <button id="proses-lunas-btn" class="btn btn-lunas px-5 py-2 rounded-md font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors flex items-center gap-2">
+                    <i class="fas fa-paper-plane"></i> Proses & Kirim Pesan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail Pelanggan -->
+    <div id="detail-pelanggan-modal" class="modal-overlay">
+        <div class="modal-content max-w-2xl">
+            <div class="modal-header">
+                <h2 id="detail-modal-title" class="text-xl font-semibold text-blue-600">Detail Pelanggan</h2>
+                <span class="detail-modal-close text-gray-500 hover:text-gray-800 cursor-pointer text-3xl font-bold">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-700">Informasi Kontak</h3>
+                    <p><strong>Nama:</strong> <span id="detail-nama-pelanggan"></span></p>
+                    <p><strong>Cabang:</strong> <span id="detail-cabang-pelanggan"></span></p>
+                    <p><strong>No. WA:</strong> <span id="detail-no-wa-pelanggan"></span></p>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Daftar Tagihan</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="py-2 px-3 bg-blue-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">No Invoice</th>
+                                <th class="py-2 px-3 bg-blue-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Tanggal</th>
+                                <th class="py-2 px-3 bg-blue-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Jatuh Tempo</th>
+                                <th class="py-2 px-3 bg-blue-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Sisa Tagihan</th>
+                                <th class="py-2 px-3 bg-blue-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Kategori</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detail-invoice-list" class="divide-y divide-gray-100">
+                            <!-- Daftar invoice detail akan dimuat di sini -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer flex justify-end mt-4">
+                <button class="detail-modal-close px-5 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold transition-colors">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Manajemen Template Pesan -->
+    <div id="template-modal" class="modal-overlay">
+        <div class="modal-content max-w-2xl">
+            <div class="modal-header">
+                <h2 class="text-xl font-semibold text-blue-600">Manajemen Template Pesan</h2>
+                <span class="template-modal-close text-gray-500 hover:text-gray-800 cursor-pointer text-3xl font-bold">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <label for="template-name" class="block text-sm font-medium text-gray-700 mb-1">Nama Template:</label>
+                    <input type="text" id="template-name" class="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 mb-2">
+                    <label for="template-content" class="block text-sm font-medium text-gray-700 mb-1">Konten Template:</label>
+                    <textarea id="template-content" rows="6" class="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    <p class="text-sm text-gray-500 mt-1">Gunakan placeholder seperti <code class="bg-gray-200 p-1 rounded">{'{{nama_pelanggan}}'}</code>, <code class="bg-gray-200 p-1 rounded">{'{{daftar_invoice}}'}</code>, <code class="bg-gray-200 p-1 rounded">{'{{total_tagihan}}'}</code>, <code class="bg-gray-200 p-1 rounded">{'{{total_dibayar}}'}</code>, <code class="bg-gray-200 p-1 rounded">{'{{daftar_invoice_lunas}}'}</code>, <code class="bg-gray-200 p-1 rounded">{'{{sisa_tagihan_detail}}'}</code>, <code class="bg-gray-200 p-1 rounded">{'{{total_sisa_tagihan}}'}</code>, <code class="bg-gray-200 p-1 rounded">{'{{detail_barang_kuantiti}}'}</code>.</p>
+                </div>
+                <div class="flex justify-end gap-2 mb-4">
+                    <button id="save-template-btn" class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold transition-colors">
+                        <i class="fas fa-save"></i> Simpan Template
+                    </button>
+                    <button id="new-template-btn" class="px-4 py-2 rounded-md bg-gray-300 text-gray-800 hover:bg-gray-400 font-semibold transition-colors">
+                        <i class="fas fa-plus"></i> Template Baru
+                    </button>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Template Tersimpan</h3>
+                <div id="saved-templates-list" class="border border-gray-200 rounded-md p-3 max-h-48 overflow-y-auto">
+                    <!-- Daftar template akan dimuat di sini -->
+                    <p class="text-center text-gray-500">Tidak ada template tersimpan.</p>
+                </div>
+            </div>
+            <div class="modal-footer flex justify-end mt-4">
+                <button class="template-modal-close px-5 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold transition-colors">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal PIN Akses Aplikasi -->
+    <div id="pin-access-modal" class="modal-overlay">
+        <div class="modal-content max-w-sm">
+            <div class="modal-header">
+                <h2 class="text-xl font-semibold text-blue-600">Masukkan PIN Aplikasi</h2>
+                <!-- No close button here, app cannot proceed without PIN -->
+            </div>
+            <div class="modal-body text-center">
+                <p class="mb-4">Untuk melanjutkan, masukkan PIN aplikasi Anda.</p>
+                <input type="password" id="pin-input" class="block w-full p-3 border border-gray-300 rounded-md text-center text-xl tracking-widest" maxlength="4">
+                <p id="pin-error-message" class="text-red-500 text-sm mt-2"></p>
+            </div>
+            <div class="modal-footer flex justify-center">
+                <button id="enter-pin-btn" class="px-5 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold transition-colors w-full">
+                    Masuk
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Login Admin -->
+    <div id="admin-login-modal" class="modal-overlay">
+        <div class="modal-content max-w-sm">
+            <div class="modal-header">
+                <h2 class="text-xl font-semibold text-blue-600">Login Admin</h2>
+                <span class="modal-close-admin text-gray-500 hover:text-gray-800 cursor-pointer text-3xl font-bold">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <label for="admin-id-input" class="block text-sm font-medium text-gray-700 mb-1">ID Admin:</label>
+                    <input type="text" id="admin-id-input" class="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label for="admin-password-input" class="block text-sm font-medium text-gray-700 mb-1">Password:</label>
+                    <input type="password" id="admin-password-input" class="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <p id="admin-error-message" class="text-red-500 text-sm mt-2"></p>
+            </div>
+            <div class="modal-footer flex justify-end">
+                <button id="admin-login-btn" class="px-5 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold transition-colors">
+                    Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ganti PIN Aplikasi -->
+    <div id="change-pin-modal" class="modal-overlay">
+        <div class="modal-content max-w-sm">
+            <div class="modal-header">
+                <h2 class="text-xl font-semibold text-blue-600">Ganti PIN Aplikasi</h2>
+                <span class="modal-close-change-pin text-gray-500 hover:text-gray-800 cursor-pointer text-3xl font-bold">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <label for="new-pin-input" class="block text-sm font-medium text-gray-700 mb-1">PIN Baru (4 digit):</label>
+                    <input type="password" id="new-pin-input" class="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" maxlength="4">
+                </div>
+                <div class="mb-4">
+                    <label for="confirm-new-pin-input" class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi PIN Baru:</label>
+                    <input type="password" id="confirm-new-pin-input" class="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" maxlength="4">
+                </div>
+                <p id="change-pin-error-message" class="text-red-500 text-sm mt-2"></p>
+            </div>
+            <div class="modal-footer flex justify-end">
+                <button id="change-pin-btn" class="px-5 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold transition-colors">
+                    Ganti PIN
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="js/script.js"></script>
+</body>
+</html>

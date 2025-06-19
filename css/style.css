@@ -1,0 +1,794 @@
+/* Import font Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+/* Variabel CSS untuk kemudahan tema dan konsistensi */
+:root {
+    --primary-color: #1a73e8; /* Biru terang untuk utama */
+    --primary-dark: #155bb5;
+    --secondary-color: #4CAF50; /* Hijau untuk sukses/lunas */
+    --secondary-dark: #45a049;
+    --warning-color: #FFC107; /* Kuning/Oranye untuk akan jatuh tempo */
+    --danger-color: #F44336; /* Merah untuk jatuh tempo */
+    --text-color-light-mode: #333;
+    --text-color-dark-mode: #e0e0e0; /* Warna teks terang untuk dark mode */
+    --bg-light-mode: #f4f7f9;
+    --bg-dark-mode: #2c2c2c;
+    --card-bg-light-mode: #fff;
+    --card-bg-dark-mode: #3a3a3a;
+    --border-color-light-mode: #e0e0e0;
+    --border-color-dark-mode: #555;
+    --header-bg-light-mode: #1a73e8;
+    --header-bg-dark-mode: #2a2a2a; /* Darker header for dark mode */
+}
+
+/* Base styles - menggunakan variabel */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-light-mode);
+    color: var(--text-color-light-mode);
+    margin: 0;
+    padding: 20px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Mode Gelap */
+body.dark-mode {
+    background-color: var(--bg-dark-mode);
+    color: var(--text-color-dark-mode) !important; /* Memastikan teks body terang */
+}
+
+.container {
+    max-width: 100%; /* Disesuaikan untuk responsif */
+    margin: 0 auto;
+    background-color: var(--card-bg-light-mode);
+    border-radius: 12px; /* Lebih rounded */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Bayangan lebih dalam */
+    padding: 25px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    /* Memberikan padding-top agar tidak tertutup oleh mini-import-container */
+    padding-top: 80px; /* Sesuaikan sesuai tinggi mini-import-container saat tidak hover */
+}
+
+body.dark-mode .container {
+    background-color: var(--card-bg-dark-mode);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+}
+
+header {
+    border-bottom: 1px solid var(--border-color-light-mode);
+    padding-bottom: 20px;
+    margin-bottom: 25px;
+    display: flex; /* Menggunakan flexbox untuk header */
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Wrap untuk responsif */
+}
+
+body.dark-mode header {
+    border-color: var(--border-color-dark-mode);
+}
+
+h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin: 0;
+    font-size: 2.2rem; /* Ukuran font lebih besar */
+    font-weight: 700; /* Lebih tebal */
+    flex-grow: 1; /* Agar mengambil ruang yang tersedia */
+}
+
+body.dark-mode h1 {
+    color: #61afef; /* Warna yang lebih cerah di dark mode */
+}
+
+/* Hapus #upload-container yang lama karena sudah dipindahkan */
+/* #upload-container { ... } */
+
+.filters {
+    display: flex;
+    flex-wrap: wrap; /* Penting untuk responsif */
+    gap: 15px;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.filters select,
+.filters input {
+    padding: 10px 15px;
+    border: 1px solid var(--border-color-light-mode);
+    border-radius: 8px; /* Lebih rounded */
+    font-size: 15px;
+    flex-grow: 1;
+    min-width: 150px; /* Minimal lebar untuk input/select */
+    background-color: var(--card-bg-light-mode);
+    color: var(--text-color-light-mode);
+    transition: all 0.3s ease;
+}
+
+body.dark-mode .filters select,
+body.dark-mode .filters input {
+    background-color: var(--card-bg-dark-mode);
+    color: var(--text-color-dark-mode) !important; /* Memastikan teks input/select terang */
+    border-color: var(--border-color-dark-mode);
+}
+
+table {
+    width: 100%;
+    border-collapse: separate; /* Untuk border-radius pada thead */
+    border-spacing: 0;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 14px 18px; /* Padding lebih */
+    text-align: left;
+    border-bottom: 1px solid var(--border-color-light-mode);
+    font-size: 14px;
+}
+
+body.dark-mode th,
+body.dark-mode td {
+    border-color: var(--border-color-dark-mode);
+    color: var(--text-color-dark-mode) !important; /* Memastikan teks tabel terang di dark mode */
+}
+
+thead th {
+    background-color: var(--header-bg-light-mode);
+    color: var(--text-color-light); /* Putih untuk teks header */
+    font-weight: 600;
+    position: sticky; /* Sticky header */
+    top: 0;
+    z-index: 10;
+    cursor: pointer; /* Menunjukkan bahwa header dapat diklik untuk sorting */
+}
+
+body.dark-mode thead th {
+    background-color: var(--header-bg-dark-mode);
+}
+
+/* Border radius untuk thead */
+thead tr:first-child th:first-child {
+    border-top-left-radius: 8px;
+}
+thead tr:first-child th:last-child {
+    border-top-right-radius: 8px;
+}
+
+tbody tr:hover {
+    background-color: #f0f8ff; /* Light blue on hover */
+    transition: background-color 0.2s ease;
+}
+
+body.dark-mode tbody tr:hover {
+    background-color: #444;
+}
+
+.btn {
+    padding: 10px 18px; /* Padding lebih */
+    border: none;
+    border-radius: 8px; /* Lebih rounded */
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    margin-right: 8px;
+    transition: all 0.3s ease; /* Transisi untuk semua properti */
+    display: inline-flex; /* Untuk ikon */
+    align-items: center;
+    gap: 8px; /* Spasi antara teks dan ikon */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Bayangan tombol */
+}
+
+/* Warna tombol spesifik */
+.btn-wa {
+    background: linear-gradient(45deg, #25d366, #128c7e); /* Gradien WhatsApp */
+    color: white;
+}
+.btn-wa:hover {
+    background: linear-gradient(45deg, #128c7e, #25d366);
+    box-shadow: 0 4px 10px rgba(37, 211, 102, 0.4);
+    transform: translateY(-2px); /* Efek angkat */
+}
+
+.btn-lunas {
+    background: linear-gradient(45deg, #4caf50, #2e7d32); /* Gradien Lunas */
+    color: white;
+}
+.btn-lunas:hover {
+    background: linear-gradient(45deg, #2e7d32, #4caf50);
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: linear-gradient(45deg, #6c757d, #495057); /* Gradien Sekunder */
+    color: white;
+}
+.btn-secondary:hover {
+    background: linear-gradient(45deg, #495057, #6c757d);
+    box-shadow: 0 4px 10px rgba(108, 117, 125, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-edit {
+    background: linear-gradient(45deg, #03a9f4, #0288d1); /* Gradien Edit (biru muda) */
+    color: white;
+}
+.btn-edit:hover {
+    background: linear-gradient(45deg, #0288d1, #03a9f4);
+    box-shadow: 0 4px 10px rgba(3, 169, 244, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-detail {
+    background: linear-gradient(45deg, #8bc34a, #689f38); /* Gradien Detail (hijau cerah) */
+    color: white;
+}
+.btn-detail:hover {
+    background: linear-gradient(45deg, #689f38, #8bc34a);
+    box-shadow: 0 4px 10px rgba(139, 195, 74, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-template {
+    background: linear-gradient(45deg, #ff9800, #f57c00); /* Gradien Template (oranye) */
+    color: white;
+}
+.btn-template:hover {
+    background: linear-gradient(45deg, #f57c00, #ff9800);
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);
+    transform: translateY(-2px);
+}
+
+
+.aksi-container {
+    display: flex;
+    flex-wrap: wrap; /* Agar tombol wrap pada layar kecil */
+    gap: 8px; /* Spasi antar tombol */
+    justify-content: flex-start;
+}
+
+/* Badge Notifikasi */
+.badge {
+    display: inline-block;
+    min-width: 20px;
+    padding: 3px 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    border-radius: 10px;
+    background-color: var(--danger-color); /* Default merah */
+    margin-left: 5px;
+}
+
+#badge-akan-jatuh-tempo {
+    background-color: var(--warning-color); /* Kuning */
+}
+#badge-jatuh-tempo {
+    background-color: var(--danger-color); /* Merah */
+}
+#badge-konfirmasi-terima-barang {
+    background-color: #1abc9c; /* Teal untuk konfirmasi */
+}
+
+/* Gaya untuk Modal (umum) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.65); /* Sedikit lebih gelap */
+    z-index: 1000;
+    display: none; /* Default: Sembunyikan */
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex; /* Tampilkan saat aktif */
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: var(--card-bg-light-mode);
+    padding: 25px 35px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 550px; /* Lebar maksimum standar */
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    transform: translateY(-20px);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+body.dark-mode .modal-content {
+    background-color: var(--card-bg-dark-mode);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color-light-mode);
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+body.dark-mode .modal-header {
+    border-color: var(--border-color-dark-mode);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem; /* Ukuran font judul modal */
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+body.dark-mode .modal-header h2 {
+    color: #61afef;
+}
+
+.modal-close, .modal-close-confirm, .modal-close-alert, .detail-modal-close, .template-modal-close,
+.modal-close-pin, .modal-close-admin, .modal-close-change-pin { /* Ditambahkan */
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.modal-close:hover, .modal-close-confirm:hover, .modal-close-alert:hover, .detail-modal-close:hover, .template-modal-close:hover,
+.modal-close-pin:hover, .modal-close-admin:hover, .modal-close-change-pin:hover { /* Ditambahkan */
+    color: #333;
+}
+
+body.dark-mode .modal-close, body.dark-mode .modal-close-confirm, body.dark-mode .modal-close-alert, body.dark-mode .detail-modal-close, body.dark-mode .template-modal-close,
+body.dark-mode .modal-close-pin, body.dark-mode .modal-close-admin, body.dark-mode .modal-close-change-pin { /* Ditambahkan */
+    color: #aaa;
+}
+
+.modal-body {
+    padding-bottom: 15px;
+    color: var(--text-color-light-mode);
+}
+
+body.dark-mode .modal-body {
+    color: var(--text-color-dark-mode);
+}
+
+.invoice-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer; /* Bisa diklik untuk info lebih lanjut */
+    transition: background-color 0.2s ease;
+}
+
+.invoice-item:last-child {
+    border-bottom: none;
+}
+
+.invoice-item:hover {
+    background-color: #f9f9f9;
+}
+
+body.dark-mode .invoice-item {
+    border-color: #444;
+}
+
+body.dark-mode .invoice-item:hover {
+    background-color: #4a4a4a;
+}
+
+.invoice-item input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    margin-right: 18px;
+    accent-color: var(--primary-color); /* Warna checkbox */
+    cursor: pointer;
+}
+
+.invoice-details {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 15px;
+}
+
+.invoice-details .pelanggan-info {
+    font-weight: 600;
+    color: var(--text-color-light-mode);
+}
+
+body.dark-mode .invoice-details .pelanggan-info {
+    color: var(--text-color-dark-mode);
+}
+
+.invoice-details .tagihan-info {
+    color: var(--danger-color);
+    font-weight: 600;
+}
+
+body.dark-mode .invoice-details .tagihan-info {
+    color: #ff7878; /* Lighter red for dark mode */
+}
+
+.modal-footer {
+    text-align: right;
+    margin-top: 25px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Gaya untuk elemen yang dapat diedit di tabel detail pelanggan */
+[contenteditable="true"] {
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: #fcfcfc;
+    outline: none;
+    cursor: text;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+[contenteditable="true"]:focus {
+    border-color: var(--primary-color);
+    background-color: #e9f5ff;
+}
+
+body.dark-mode [contenteditable="true"] {
+    background-color: #4c4c4c;
+    border-color: #666;
+    color: var(--text-color-dark-mode);
+}
+
+body.dark-mode [contenteditable="true"]:focus {
+    border-color: #61afef;
+    background-color: #5a5a5a;
+}
+
+/* Template Modal Specifics */
+#template-content {
+    resize: vertical; /* Memungkinkan textarea untuk di-resize secara vertikal */
+    min-height: 120px;
+}
+
+#saved-templates-list div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color-light-mode);
+}
+#saved-templates-list div:last-child {
+    border-bottom: none;
+}
+
+body.dark-mode #saved-templates-list div {
+    border-color: var(--border-color-dark-mode);
+}
+
+#saved-templates-list button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.edit-template-btn {
+    background-color: #1a73e8;
+    color: white;
+}
+.edit-template-btn:hover {
+    background-color: #155bb5;
+}
+
+.delete-template-btn {
+    background-color: #f44336;
+    color: white;
+}
+.delete-template-btn:hover {
+    background-color: #d32f2f;
+}
+
+/* Sort icons in table headers */
+.sort-icon {
+    font-size: 0.8em;
+    vertical-align: middle;
+    margin-left: 5px;
+    color: rgba(255, 255, 255, 0.7); /* Slightly transparent white for light mode header */
+}
+
+body.dark-mode thead th .sort-icon {
+    color: rgba(255, 255, 255, 0.8); /* Slightly brighter for dark mode header */
+}
+
+/* ===================================================================== */
+/* --- MINI IMPORT CONTAINER STYLES --- */
+/* ===================================================================== */
+#mini-import-container {
+    width: 50px; /* Lebar awal saat tidak hover */
+    height: 50px; /* Tinggi awal saat tidak hover */
+    border-radius: 0 0 8px 0; /* Hanya sudut kanan bawah yang bulat */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    /* Untuk mode gelap */
+    background-color: var(--card-bg-light-mode);
+    border: 1px solid var(--border-color-light-mode);
+    color: var(--text-color-light-mode);
+}
+
+body.dark-mode #mini-import-container {
+    background-color: var(--card-bg-dark-mode);
+    border-color: var(--border-color-dark-mode);
+    color: var(--text-color-dark-mode);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+#mini-import-container:hover {
+    width: 250px; /* Lebar saat hover */
+    height: auto; /* Tinggi disesuaikan dengan konten */
+    max-height: 500px; /* Batasi tinggi jika konten terlalu banyak */
+    padding: 15px; /* Padding lebih saat hover */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+#mini-import-container .fa-file-upload {
+    font-size: 1.8rem;
+    transition: font-size 0.3s ease;
+}
+
+#mini-import-container:hover .fa-file-upload {
+    font-size: 2.2rem;
+}
+
+#mini-import-container label,
+#mini-import-container input[type="file"],
+#mini-import-container .btn {
+    opacity: 0;
+    height: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, height 0.3s ease, margin 0.3s ease, visibility 0.3s ease;
+}
+
+#mini-import-container:hover label,
+#mini-import-container:hover input[type="file"],
+#mini-import-container:hover .btn {
+    opacity: 1;
+    height: auto;
+    visibility: visible;
+    margin-bottom: 5px; /* Spasi antar elemen saat terlihat */
+}
+#mini-import-container:hover .btn {
+    margin-top: 8px; /* Spasi di atas tombol */
+}
+#mini-import-container:hover .hidden { /* Override Tailwind's hidden for these elements */
+    display: block !important;
+}
+
+/* Styling untuk input file di dalam mini-container */
+#mini-import-container input[type="file"]::-webkit-file-upload-button {
+    cursor: pointer;
+}
+#mini-import-container input[type="file"] {
+    background-color: var(--card-bg-light-mode); /* Warna background input file */
+    color: var(--text-color-light-mode);
+    border: 1px solid var(--border-color-light-mode);
+}
+body.dark-mode #mini-import-container input[type="file"] {
+    background-color: var(--card-bg-dark-mode);
+    color: var(--text-color-dark-mode);
+    border-color: var(--border-color-dark-mode);
+}
+
+
+/* ===================================================================== */
+/* --- MEDIA QUERIES UNTUK DESAIN RESPONSIVE --- */
+/* ===================================================================== */
+
+/* Ukuran layar kecil (Mobile) */
+@media (max-width: 767px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 15px;
+        border-radius: 8px;
+        padding-top: 70px; /* Sesuaikan padding-top untuk mobile */
+    }
+
+    /* Mini import container di mobile */
+    #mini-import-container {
+        width: 45px;
+        height: 45px;
+        padding: 10px;
+        border-radius: 0 0 8px 0;
+    }
+    #mini-import-container:hover {
+        width: 90%; /* Lebar penuh di mobile saat hover */
+        max-width: 300px;
+        padding: 15px;
+    }
+    #mini-import-container .fa-file-upload {
+        font-size: 1.5rem;
+    }
+    #mini-import-container:hover .fa-file-upload {
+        font-size: 2rem;
+    }
+
+
+    h1 {
+        font-size: 1.8rem;
+        text-align: left; /* Biarkan judul rata kiri di mobile */
+        width: 100%; /* Ambil seluruh lebar */
+        margin-bottom: 15px;
+    }
+
+    header {
+        flex-direction: column; /* Stack items vertically */
+        align-items: flex-start;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 10px;
+    }
+
+    .filters {
+        flex-direction: column; /* Stack filters vertically */
+        gap: 10px;
+    }
+
+    .filters select,
+    .filters input {
+        width: 100%; /* Full width for filters */
+        min-width: unset;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    tr {
+        border: 1px solid var(--border-color-light-mode);
+        border-radius: 8px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        overflow: hidden; /* For rounded corners */
+    }
+
+    body.dark-mode tr {
+        border-color: var(--border-color-dark-mode);
+    }
+
+    td {
+        border: none;
+        position: relative;
+        padding-left: 50%; /* Ruang untuk label */
+        text-align: right;
+        font-size: 13px;
+        word-wrap: break-word; /* Mengatasi teks panjang */
+    }
+
+    td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: 600;
+        color: #555;
+    }
+
+    body.dark-mode td:before {
+        color: #bbb;
+    }
+
+    .aksi-container {
+        justify-content: center; /* Tombol di tengah */
+        padding-top: 10px;
+        border-top: 1px solid #eee;
+        margin-top: 5px;
+    }
+
+    .btn {
+        width: calc(50% - 10px); /* 2 tombol per baris */
+        margin-right: 0;
+        margin-bottom: 10px;
+        justify-content: center;
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .btn:last-child {
+        margin-bottom: 0;
+    }
+
+    .modal-content {
+        padding: 20px 25px;
+        max-width: 95%;
+    }
+
+    .modal-header h2 {
+        font-size: 1.3rem;
+    }
+
+    .modal-close, .modal-close-confirm, .modal-close-alert, .detail-modal-close, .template-modal-close {
+        font-size: 1.8rem;
+    }
+}
+
+/* Ukuran layar sedang (Tablet) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .container {
+        padding: 20px;
+        padding-top: 80px; /* Sesuaikan padding-top untuk tablet */
+    }
+    .filters {
+        flex-direction: row;
+        justify-content: space-around;
+    }
+
+    .filters select,
+    .filters input {
+        flex-basis: calc(33% - 10px); /* Tiga kolom filter */
+        min-width: unset;
+    }
+
+    th, td {
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+
+    .aksi-container {
+        justify-content: flex-start;
+        gap: 5px;
+    }
+
+    .btn {
+        padding: 8px 14px;
+        font-size: 13px;
+        margin-right: 5px;
+    }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+    .container {
+        max-width: 1200px; /* Lebar maksimum di desktop */
+        padding-top: 90px; /* Sesuaikan padding-top untuk desktop */
+    }
+
+    .filters select,
+    .filters input {
+        flex-basis: auto;
+        width: auto;
+    }
+}
