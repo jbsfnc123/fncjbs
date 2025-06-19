@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aplikasi Pengingat Tagihan FORTRESS™ (Client-Side)</title>
     <link rel="stylesheet" href="css/style.css">
-    <!-- Font Awesome untuk ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Tailwind CSS CDN untuk styling modern dan responsif -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -86,7 +84,8 @@
         body.dark-mode .template-modal-close,
         body.dark-mode .modal-close-pin,
         body.dark-mode .modal-close-admin,
-        body.dark-mode .modal-close-change-pin {
+        body.dark-mode .modal-close-change-pin,
+        body.dark-mode .modal-close-donation {
             color: #aaa;
         }
 
@@ -124,7 +123,6 @@
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-poppins">
-    <!-- Kontainer Import File Mini -->
     <div id="mini-import-container" class="fixed top-0 left-0 z-50 p-2 md:p-4 bg-white shadow-lg rounded-br-lg transition-all duration-300 hover:w-64 md:hover:w-80 overflow-hidden group">
         <div class="flex items-center mb-2">
             <i class="fas fa-file-upload text-blue-600 text-xl mr-2"></i>
@@ -142,7 +140,7 @@
             </div>
         </div>
 
-        <div>
+        <div class="mb-2">
             <label class="block text-xs font-medium text-gray-600 hidden group-hover:block">Detail Barang:</label>
             <input type="file" id="file-input-detail" accept=".xlsx, .xls" class="block w-full text-xs text-gray-500 file:px-2 file:py-1 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 hidden group-hover:block">
             <button id="clear-data-detail-btn" class="btn btn-secondary text-xs px-2 py-1 rounded-md mt-1 hidden group-hover:block w-full">
@@ -152,21 +150,24 @@
                 <i class="fas fa-spinner fa-spin mr-1"></i>Loading...
             </div>
         </div>
+
+        <div class="mt-2">
+            <button id="open-donation-modal-btn" class="btn btn-donate text-xs px-2 py-1 rounded-md hidden group-hover:block w-full">
+                <i class="fas fa-hand-holding-heart"></i> Donasi Developer
+            </button>
+        </div>
     </div>
 
     <div class="container mx-auto p-5 md:p-8 bg-white rounded-lg shadow-xl my-8">
         <header class="border-b pb-5 mb-5 flex flex-col md:flex-row justify-between items-center">
             <h1 class="text-3xl font-semibold text-blue-600 mb-4 md:mb-0">Pengingat Tagihan FORTRESS™</h1>
             <div class="flex items-center gap-4 header-actions">
-                <!-- Tombol Mode Gelap -->
                 <button id="dark-mode-toggle" class="p-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors">
                     <i class="fas fa-moon text-gray-700 dark:text-gray-300"></i>
                 </button>
-                <!-- Tombol Manajemen Template -->
                 <button id="template-modal-btn" class="btn btn-template px-4 py-2 rounded-md font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors flex items-center gap-2">
                     <i class="fas fa-file-alt"></i> Template Pesan
                 </button>
-                <!-- Tombol Pengaturan Admin -->
                 <button id="open-admin-settings-btn" class="btn btn-secondary px-4 py-2 rounded-md font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 transition-colors flex items-center gap-2">
                     <i class="fas fa-user-shield"></i> Admin
                 </button>
@@ -174,8 +175,6 @@
         </header>
 
         <main>
-            <!-- Kontainer unggah sebelumnya telah dipindahkan ke mini-import-container -->
-
             <div class="filters flex flex-col md:flex-row gap-4 mb-6" id="filter-controls" style="display: none;">
                 <div class="relative flex-grow">
                     <select id="filter-cabang" class="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition-colors">
@@ -221,7 +220,6 @@
         </main>
     </div>
 
-    <!-- Modal Konfirmasi Kustom -->
     <div id="custom-confirm-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -238,7 +236,6 @@
         </div>
     </div>
 
-    <!-- Modal Notifikasi Kustom -->
     <div id="custom-alert-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -255,7 +252,6 @@
     </div>
 
 
-    <!-- Modal Lunas -->
     <div id="lunas-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -263,8 +259,7 @@
                 <span class="modal-close text-gray-500 hover:text-gray-800 cursor-pointer text-3xl font-bold">&times;</span>
             </div>
             <div class="modal-body" id="modal-invoice-list">
-                <!-- Daftar invoice akan dimuat di sini -->
-            </div>
+                </div>
             <div class="modal-footer flex justify-end">
                 <button id="proses-lunas-btn" class="btn btn-lunas px-5 py-2 rounded-md font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors flex items-center gap-2">
                     <i class="fas fa-paper-plane"></i> Proses & Kirim Pesan
@@ -273,7 +268,6 @@
         </div>
     </div>
 
-    <!-- Modal Detail Pelanggan -->
     <div id="detail-pelanggan-modal" class="modal-overlay">
         <div class="modal-content max-w-2xl">
             <div class="modal-header">
@@ -300,8 +294,7 @@
                             </tr>
                         </thead>
                         <tbody id="detail-invoice-list" class="divide-y divide-gray-100">
-                            <!-- Daftar invoice detail akan dimuat di sini -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -311,7 +304,6 @@
         </div>
     </div>
 
-    <!-- Modal Manajemen Template Pesan -->
     <div id="template-modal" class="modal-overlay">
         <div class="modal-content max-w-2xl">
             <div class="modal-header">
@@ -336,7 +328,6 @@
                 </div>
                 <h3 class="text-lg font-semibold text-gray-700 mb-2">Template Tersimpan</h3>
                 <div id="saved-templates-list" class="border border-gray-200 rounded-md p-3 max-h-48 overflow-y-auto">
-                    <!-- Daftar template akan dimuat di sini -->
                     <p class="text-center text-gray-500">Tidak ada template tersimpan.</p>
                 </div>
             </div>
@@ -346,13 +337,11 @@
         </div>
     </div>
 
-    <!-- Modal PIN Akses Aplikasi -->
     <div id="pin-access-modal" class="modal-overlay">
         <div class="modal-content max-w-sm">
             <div class="modal-header">
                 <h2 class="text-xl font-semibold text-blue-600">Masukkan PIN Aplikasi</h2>
-                <!-- No close button here, app cannot proceed without PIN -->
-            </div>
+                </div>
             <div class="modal-body text-center">
                 <p class="mb-4">Untuk melanjutkan, masukkan PIN aplikasi Anda.</p>
                 <input type="password" id="pin-input" class="block w-full p-3 border border-gray-300 rounded-md text-center text-xl tracking-widest" maxlength="4">
@@ -366,7 +355,6 @@
         </div>
     </div>
 
-    <!-- Modal Login Admin -->
     <div id="admin-login-modal" class="modal-overlay">
         <div class="modal-content max-w-sm">
             <div class="modal-header">
@@ -392,7 +380,6 @@
         </div>
     </div>
 
-    <!-- Modal Ganti PIN Aplikasi -->
     <div id="change-pin-modal" class="modal-overlay">
         <div class="modal-content max-w-sm">
             <div class="modal-header">
@@ -418,7 +405,51 @@
         </div>
     </div>
 
+    <div id="donation-modal" class="modal-overlay">
+        <div class="modal-content max-w-sm">
+            <div class="modal-header">
+                <h2 class="text-xl font-semibold text-blue-600">Dukung Developer</h2>
+                <span class="modal-close-donation text-gray-500 hover:text-gray-800 cursor-pointer text-3xl font-bold">&times;</span>
+            </div>
+            <div class="modal-body text-center">
+                <p class="mb-4 text-gray-700 dark:text-gray-300">Jika aplikasi ini bermanfaat bagi Anda, pertimbangkan untuk memberikan donasi kecil untuk mendukung pengembangan lebih lanjut.</p>
+                <div class="text-left text-gray-800 dark:text-gray-200">
+                    <p class="mb-2"><strong>Bank:</strong> <span id="bank-name">BANK BCA</span></p>
+                    <p class="mb-2 flex items-center">
+                        <strong>No. Rek:</strong>
+                        <span id="account-number" class="ml-2 px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-blue-600 dark:text-blue-400 font-mono cursor-pointer" title="Klik untuk menyalin" contenteditable="true" data-field="rekening" data-original-value="0608140814">0608140814</span>
+                        <button class="ml-2 px-2 py-1 bg-gray-200 dark:bg-gray-600 rounded text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors" onclick="copyToClipboard('account-number', this)">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </p>
+                    <p><strong>Nama:</strong> <span id="account-holder">Muhammad Faris</span></p>
+                </div>
+            </div>
+            <div class="modal-footer flex justify-end">
+                <button class="modal-close-donation px-5 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-semibold transition-colors">Tutup</button>
+            </div>
+        </div>
+    </div>
 
     <script src="js/script.js"></script>
+    <script>
+        // Fungsi untuk menyalin teks ke clipboard
+        function copyToClipboard(elementId, buttonElement) {
+            const element = document.getElementById(elementId);
+            const textToCopy = element.textContent;
+
+            navigator.clipboard.writeText(textToCopy).then(function() {
+                // Change icon to checkmark temporarily
+                const originalIcon = buttonElement.innerHTML;
+                buttonElement.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    buttonElement.innerHTML = originalIcon;
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                alert('Gagal menyalin nomor rekening. Silakan salin secara manual.');
+            });
+        }
+    </script>
 </body>
 </html>
