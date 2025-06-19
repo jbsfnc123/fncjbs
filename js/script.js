@@ -95,6 +95,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const openAdminSettingsBtn = document.getElementById('open-admin-settings-btn'); // Tombol untuk membuka pengaturan admin
 
+    // --- Elemen Modal Donasi ---
+    const donationModal = document.getElementById('donation-modal');
+    const openDonationModalBtn = document.getElementById('open-donation-modal-btn');
+    const donationModalCloseBtn = document.querySelector('.modal-close-donation');
+    const bankNameElement = document.getElementById('bank-name');
+    const accountNumberElement = document.getElementById('account-number');
+    const accountHolderElement = document.getElementById('account-holder');
+
 
     let dataMaster = []; // Data tagihan utama
     let dataDetailBarang = {}; // Data detail barang, diindeks oleh No Invoice
@@ -114,6 +122,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Default PIN aplikasi
     let currentPin = localStorage.getItem('appPin') || '0608'; // Default PIN jika belum ada
+
+    // Default info donasi
+    let donationInfo = JSON.parse(localStorage.getItem('donationInfo')) || {
+        bank: 'BANK BCA',
+        accountNumber: '8681353429',
+        accountHolder: 'Dearmando Alianta Manalu'
+    };
 
     // =====================================================================
     // --- FUNGSI UTILITAS UNTUK MODAL KUSTOM (ALERT & CONFIRM) ---
@@ -365,6 +380,49 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target === changePinModal) changePinModal.classList.remove('active');
     });
 
+    // =====================================================================
+    // --- EVENT LISTENERS UNTUK MODAL DONASI ---
+    // =====================================================================
+    if (openDonationModalBtn) {
+        openDonationModalBtn.addEventListener('click', () => {
+            loadDonationInfo(); // Pastikan data terbaru dimuat sebelum menampilkan
+            donationModal.classList.add('active');
+        });
+    }
+
+    if (donationModalCloseBtn) {
+        donationModalCloseBtn.addEventListener('click', () => donationModal.classList.remove('active'));
+    }
+
+    if (donationModal) {
+        donationModal.addEventListener('click', (e) => {
+            if (e.target === donationModal) donationModal.classList.remove('active');
+        });
+    }
+
+    // Event listener untuk menyimpan perubahan nomor rekening saat diedit
+    if (accountNumberElement) {
+        accountNumberElement.addEventListener('focusout', async function(e) {
+            const target = e.target;
+            // Hanya proses jika elemen yang diedit dan nilainya berubah
+            if (target.hasAttribute('contenteditable') && target.dataset.originalValue !== target.textContent) {
+                let newValue = target.textContent.trim();
+                const originalValue = target.dataset.originalValue;
+
+                const confirmEdit = await showCustomConfirm(`Apakah Anda yakin ingin mengubah nomor rekening menjadi '${newValue}'?`);
+
+                if (confirmEdit) {
+                    donationInfo.accountNumber = newValue;
+                    saveDonationInfo();
+                    await showCustomAlert("Nomor rekening berhasil diperbarui!", "Sukses");
+                    target.dataset.originalValue = target.textContent; // Perbarui nilai original
+                } else {
+                    target.textContent = originalValue; // Kembalikan ke nilai asli jika dibatalkan
+                }
+            }
+        });
+    }
+
 
     // =====================================================================
     // --- FUNGSI UTAMA & ALUR APLIKASI ---
@@ -421,6 +479,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadTemplates(); // Tetap muat template
         updateDarkModeFromLocalStorage(); // Muat preferensi mode gelap
         updateBadges(); // Perbarui badge saat aplikasi dimulai (mungkin kosong)
+        loadDonationInfo(); // Muat info donasi
     }
 
     // Fungsi untuk handle file master tagihan
@@ -1013,7 +1072,7 @@ document.addEventListener('DOMContentLoaded', function() {
             waWindow = window.open(urlWA, 'whatsapp_tab'); // 'whatsapp_tab' adalah nama target
         }
         
-        await showCustomAlert("WhatsApp message prepared successfully!", "Success");
+        await showCustomAlert("WhatsApp message prepared successfully!", "Sukses");
     }
 
     function bukaModalDetailPelanggan(namaPelanggan) {
@@ -1354,6 +1413,31 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('appPin', currentPin);
         changePinModal.classList.remove('active');
         await showCustomAlert('PIN aplikasi berhasil diubah!', 'Sukses');
+    }
+
+    // =====================================================================
+    // --- FUNGSI DONASI ---
+    // =====================================================================
+    function loadDonationInfo() {
+        const storedDonationInfo = localStorage.getItem('donationInfo');
+        if (storedDonationInfo) {
+            donationInfo = JSON.parse(storedDonationInfo);
+        } else {
+            // Set default if not found in localStorage
+            donationInfo = {
+                bank: 'BANK BCA',
+                accountNumber: '8681353429',
+                accountHolder: 'Dearmando A Manalu'
+            };
+        }
+        bankNameElement.textContent = donationInfo.bank;
+        accountNumberElement.textContent = donationInfo.accountNumber;
+        accountNumberElement.dataset.originalValue = donationInfo.accountNumber; // Set original value for contenteditable
+        accountHolderElement.textContent = donationInfo.accountHolder;
+    }
+
+    function saveDonationInfo() {
+        localStorage.setItem('donationInfo', JSON.stringify(donationInfo));
     }
 
 
